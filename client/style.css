@@ -1,0 +1,49 @@
+
+html, body{
+    margin:5px;
+    background-color:#C0C0C0;
+}
+
+li{
+  /*display: inline-block;*/
+}
+
+a{
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
+}
+a:hover{
+  text-decoration: underline;
+}
+
+button:hover{
+  cursor: pointer;
+}
+
+.hidden{
+	display: none;
+}
+
+#site-title{
+	font-size: 36px;
+	padding: 10px 20px;
+	color: black;
+	font-family: inconsolata;
+  text-align: center;
+}
+footer{
+    vertical-align: text-bottom
+}
+#authors{
+  display: inline-block;
+  float: left;
+  padding: none;
+  text-align: center;
+
+}
+
+#author-item{
+  padding-left: 20px;
+}
+
