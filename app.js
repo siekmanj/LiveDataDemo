@@ -42,12 +42,11 @@ io.sockets.on('connection', function(socket){
     socket.id = Math.floor(Math.random()*1000000);
     socket.toRemove = false;
     SOCKET_LIST[socket.id] = socket;
+    socket.emit('connectionResponse', dataStorage);//Get the newly connected user up-to-date with all the data strings sent by nodes.
 
-    console.log("Connection from " + socket.id + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
+    console.log("Connection from " + socket.request.connection._peername + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
+    console.log(socket.request.connection._peername);
     
-    for(var i in dataStorage){ //Get the newly connected user up-to-date with all the data strings sent by nodes.
-        socket.emit('nodeupdate', dataStorage[i]);
-    }
 
     socket.on('disconnect', function(){ //This is executed when a socket disconnects, so the server doesn't send packages to sockets that don't exist anymore.
         delete SOCKET_LIST[socket.id];
