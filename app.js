@@ -3,7 +3,11 @@ var app = express();
 var serv = require('http').Server(app);
 var port = 80;
 var io = require('socket.io')(serv, {});
-var deltaT = 1000/60;
+var deltaT = 1000/1;
+var updateReady = true;
+
+var dataBuffer = new Array();
+var dataStorage = new Array();
 
 var SOCKET_LIST = {};
 
@@ -22,9 +26,15 @@ app.get('/', function(req, res) {
 app.get('/index.js', function(req, res){
     res.sendFile(__dirname + '/client/index.js');
 });
+//http://localhost/data/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17
 
-app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex', function(req, res){
+app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex/:ID/', function(req, res){
     console.log(req.params);
+    dataBuffer.push(req.params); //Put the new data inside a data buffer to be sent out next time there's an update.
+    dataStorage.push(req.params); //Put the new data inside an array containing all data updates, to be sent out when a client connects for the first time.
+    res.status(200).send("Success"); //Send the node a confirmation of receipt.
+    
+    updateReady = true;
 });
 
 io.sockets.on('connection', function(socket){
@@ -33,37 +43,33 @@ io.sockets.on('connection', function(socket){
     socket.toRemove = false;
     SOCKET_LIST[socket.id] = socket;
 
-    console.log("Connection from " + socket.id + ". " + numberOfObjects(SOCKET_LIST) + " users currently online.");
+    console.log("Connection from " + socket.id + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
+    
+    for(var i in dataStorage){ //Get the newly connected user up-to-date with all the data strings sent by nodes.
+        socket.emit('nodeupdate', dataStorage[i]);
+    }
 
     socket.on('disconnect', function(){ //This is executed when a socket disconnects, so the server doesn't send packages to sockets that don't exist anymore.
-        socket.toRemove = true; //We don't want to remove a user from the contributor list unless all of his curves have faded, so we need to keep him in the socket_list until then.
+        delete SOCKET_LIST[socket.id];
+        console.log(socket.id + " disconnected. " + numberOfObjects(SOCKET_LIST) + " users currently connected.")    
     });
 });
 
-var removeUser = function(socketID){
-
-    delete SOCKET_LIST[socketID];
-    console.log(socketID + " disconnected. " + numberOfObjects(SOCKET_LIST) + " users currently online.")
-}
-
 var numberOfObjects = function(list){
     var count = 0;
-    for(var i in list){
-        count++;
-    }
+    for(var i in list) count++;
     return count;
 }
 
-setInterval(function(socket){ // This is a function that is called every 'tick'.
-
-   
-    for(var i in SOCKET_LIST){ //This loop sends a package with the now updated curve list to every socket currently connected to the server.
-        var socket = SOCKET_LIST[i];
-        
-        if(socket.toRemove){ //If the user has disconnected he is removed from the socket list.
-            removeUser(socket.id);
+setInterval(function(socket){ // This is a function that is called every 'tick'.   
+    if(updateReady){
+        for(var i in SOCKET_LIST){ //This loop sends a package with the now updated curve list to every socket currently connected to the server.
+            var socket = SOCKET_LIST[i];
+            for(var i in dataBuffer){
+                socket.emit('nodeupdate', dataBuffer[i]);
+            }
         }
-		//socket.emit('contributors', contributorList, contributorColors);
+        updateReady = false
+        dataBuffer = []; // Clear the data buffer now that all updates have been sent
     }
-
  }, deltaT);
