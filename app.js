@@ -64,6 +64,7 @@ app.get('/index.js', function(req, res){
 //http://localhost/data/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17
 
 app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex/:ID/', function(req, res){
+    console.log(req.params);
     var currentTime = new Date(Date.now());
     console.log("Received data from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes());
     updateReady = true;
@@ -124,7 +125,8 @@ io.sockets.on('connection', function(socket){
 
     socket.on('disconnect', function(){ //This is executed when a socket disconnects, so the server doesn't send packages to sockets that don't exist anymore.
         delete SOCKET_LIST[socket.id];
-        console.log(socket.id + " disconnected. " + numberOfObjects(SOCKET_LIST) + " users currently connected.")    
+        var currentTime = new Date(Date.now());
+        console.log(socket.request.connection._peername.address + " disconnected. " + numberOfObjects(SOCKET_LIST) + " users currently connected.")    
     });
 });
     
