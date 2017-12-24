@@ -112,6 +112,10 @@ app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSveloc
     updateReady = true;
 });
 
+app.get("*", function(req, res){
+    console.log(req);
+});
+
 io.sockets.on('connection', function(socket){
 
     socket.id = Math.floor(Math.random()*1000000);
