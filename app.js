@@ -118,8 +118,7 @@ io.sockets.on('connection', function(socket){
     SOCKET_LIST[socket.id] = socket;
     socket.emit('nodeupdate', nodes);//Get the newly connected user up-to-date with all the data strings sent by nodes.
 
-    console.log("Connection from " + socket.request.connection._peername + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
-    console.log(socket.request.connection._peername);
+    console.log("Connection from " + socket.request.connection._peername.address + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
     
 
     socket.on('disconnect', function(){ //This is executed when a socket disconnects, so the server doesn't send packages to sockets that don't exist anymore.
@@ -153,10 +152,11 @@ var getIndexFromID = function(arr, ID){
 }
 setInterval(function(socket){ // This is a function that is called every 'tick'.   
     if(updateReady){
-       for(var i in SOCKET_LIST){ //This loop sends a package with the now updated curve list to every socket currently connected to the server.
-        var socket = SOCKET_LIST[i];
-        socket.emit('nodeupdate', nodes);
-       }  
+        console.log("Sending update to all connected clients.");
+        for(var i in SOCKET_LIST){ //This loop sends a package with the now updated curve list to every socket currently connected to the server.
+            var socket = SOCKET_LIST[i];
+            socket.emit('nodeupdate', nodes);
+        }  
     }
     updateReady = false;
    
