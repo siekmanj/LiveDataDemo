@@ -4,13 +4,48 @@ var serv = require('http').Server(app);
 var port = 80;
 var io = require('socket.io')(serv, {});
 var deltaT = 1000/1;
-var updateReady = true;
+var updateReady = false;
 
-var dataBuffer = new Array();
-var dataStorage = new Array();
+var nodes = new Array();
 
 var SOCKET_LIST = {};
 
+var node = function(SHTtemp, SHThumid, BMPtemp, BMPpressure, batteryVoltage, DSvelocity, DSdirection, DStemp, sec, min, hr, day, month, visibleLight, irLight, uvIndex, ID){ 
+    updateTime = new Date(2017, month, day, hr, min, sec);
+    //console.log(2017 + "/" + month + "/"+day+"/"+hr+"/"+min+"/"+sec);
+    var self = {
+        temp1: SHTtemp,
+        humidity: SHThumid,
+        temp2: BMPtemp,
+        pressure: BMPpressure,
+        voltage: batteryVoltage,
+        velocity: DSvelocity,
+        direction: DSdirection,
+        temp3: DStemp,
+        lastUdate: updateTime,
+        VB: visibleLight,
+        IR: irLight,
+        UV: uvIndex,
+        uniqueID: ID
+    }//http://localhost/data/1111/     2/        3          /4/       5/              6/             7/         8/    9/   10/ 11/ 12/   13/     14/          15/      16/    1
+    self.update = function(SHTtemp, SHThumid, BMPtemp, BMPpressure, batteryVoltage, DSvelocity, DSdirection, DStemp, sec, min, hr, day, month, visibleLight, irLight, uvIndex){
+        updateTime = new Date(2017, month, day, hr, min, sec);
+        self.temp1= SHTtemp;
+        self.humidity= SHThumid;
+        self.temp2= BMPtemp;
+        self.pressure = BMPpressure;
+        self.voltage = batteryVoltage;
+        self.velocity = DSvelocity;
+        self.direction = DSdirection;
+        self.temp3 = DStemp;
+        self.lastUpdate = updateTime;
+        self.VB = visibleLight;
+        self.IR = irLight;
+        self.UV = uvIndex;
+    }
+    //console.log(self.lastUdate);
+    return self;
+}
 
 app.use('/client', express.static(__dirname + '/client'));
 
@@ -29,9 +64,48 @@ app.get('/index.js', function(req, res){
 //http://localhost/data/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17
 
 app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex/:ID/', function(req, res){
-    console.log(req.params);
-    dataBuffer.push(req.params); //Put the new data inside a data buffer to be sent out next time there's an update.
-    dataStorage.push(req.params); //Put the new data inside an array containing all data updates, to be sent out when a client connects for the first time.
+    var currentTime = new Date(Date.now());
+    console.log("Connection from from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes());
+    updateReady = true;
+    if(contains(nodes, req.params.ID)){
+        nodes[getIndexFromID(nodes, req.params.ID)].update(  req.params.SHTtemp, 
+                                                             req.params.SHThumid, 
+                                                             req.params.BMPtemp,
+                                                             req.params.BMPpressure,
+                                                             req.params.batteryVoltage,
+                                                             req.params.DSvelocity,
+                                                             req.params.DSdirection,
+                                                             req.params.DStemp,
+                                                             req.params.sec,
+                                                             req.params.min,
+                                                             req.params.hr,
+                                                             req.params.day,
+                                                             req.params.month,
+                                                             req.params.visibleLight,
+                                                             req.params.irLight,
+                                                             req.params.uvIndex
+                                                          );
+    }else{
+        nodes.push(
+            new node(req.params.SHTtemp, 
+                     req.params.SHThumid, 
+                     req.params.BMPtemp,
+                     req.params.BMPpressure,
+                     req.params.batteryVoltage,
+                     req.params.DSvelocity,
+                     req.params.DSdirection,
+                     req.params.DStemp,
+                     req.params.sec,
+                     req.params.min,
+                     req.params.hr,
+                     req.params.day,
+                     req.params.month,
+                     req.params.visibleLight,
+                     req.params.irLight,
+                     req.params.uvIndex,
+                     req.params.ID));
+    }
+   
     res.status(200).send("Success"); //Send the node a confirmation of receipt.
     
     updateReady = true;
@@ -42,7 +116,7 @@ io.sockets.on('connection', function(socket){
     socket.id = Math.floor(Math.random()*1000000);
     socket.toRemove = false;
     SOCKET_LIST[socket.id] = socket;
-    socket.emit('connectionResponse', dataStorage);//Get the newly connected user up-to-date with all the data strings sent by nodes.
+    socket.emit('nodeupdate', nodes);//Get the newly connected user up-to-date with all the data strings sent by nodes.
 
     console.log("Connection from " + socket.request.connection._peername + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
     console.log(socket.request.connection._peername);
@@ -53,6 +127,15 @@ io.sockets.on('connection', function(socket){
         console.log(socket.id + " disconnected. " + numberOfObjects(SOCKET_LIST) + " users currently connected.")    
     });
 });
+    
+var contains = function(arr, ID){
+    for(var i in arr){
+        if(arr[i].uniqueID == ID){
+            return true;
+        }
+    }
+    return false;
+}
 
 var numberOfObjects = function(list){
     var count = 0;
@@ -60,15 +143,21 @@ var numberOfObjects = function(list){
     return count;
 }
 
+var getIndexFromID = function(arr, ID){
+    for(var i in arr){
+        if(arr[i].uniqueID == ID){
+            return i;
+        }
+    }
+    return -1;
+}
 setInterval(function(socket){ // This is a function that is called every 'tick'.   
     if(updateReady){
-        for(var i in SOCKET_LIST){ //This loop sends a package with the now updated curve list to every socket currently connected to the server.
-            var socket = SOCKET_LIST[i];
-            for(var i in dataBuffer){
-                socket.emit('nodeupdate', dataBuffer[i]);
-            }
-        }
-        updateReady = false
-        dataBuffer = []; // Clear the data buffer now that all updates have been sent
+       for(var i in SOCKET_LIST){ //This loop sends a package with the now updated curve list to every socket currently connected to the server.
+        var socket = SOCKET_LIST[i];
+        socket.emit('nodeupdate', nodes);
+       }  
     }
+    updateReady = false;
+   
  }, deltaT);
