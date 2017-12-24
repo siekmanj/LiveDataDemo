@@ -5,9 +5,10 @@ var socket = io();
 socket.on('nodeupdate', function(data){
     for(var i in data){
         var currentNode = document.getElementById('node-' + data[i].uniqueID);
+        timeOfUpdate = new Date(Date.now());
+
         if(currentNode){
             
-            timeOfUpdate = new Date(data[i].lastUpdate);
             nodestring = "<div class=\"node\" id=\"node-" + data[i].uniqueID + "\">";
             nodestring += "<div class=\"nodeid\">"; 
             nodestring += "node-" + data[i].uniqueID;
@@ -35,7 +36,6 @@ socket.on('nodeupdate', function(data){
             
         }else{
             
-            timeOfUpdate = new Date(data[i].lastUpdate);
             nodestring = "<div class=\"node\" id=\"node-" + data[i].uniqueID + "\">";
             nodestring += "<div class=\"nodeid\">"; 
             nodestring += "node-" + data[i].uniqueID;
