@@ -65,7 +65,7 @@ app.get('/index.js', function(req, res){
 
 app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex/:ID/', function(req, res){
     var currentTime = new Date(Date.now());
-    console.log("Connection from from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes());
+    console.log("Received data from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes());
     updateReady = true;
     if(contains(nodes, req.params.ID)){
         nodes[getIndexFromID(nodes, req.params.ID)].update(  req.params.SHTtemp, 
@@ -117,8 +117,9 @@ io.sockets.on('connection', function(socket){
     socket.toRemove = false;
     SOCKET_LIST[socket.id] = socket;
     socket.emit('nodeupdate', nodes);//Get the newly connected user up-to-date with all the data strings sent by nodes.
-
-    console.log("Connection from " + socket.request.connection._peername.address + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
+    
+    var currentTime = new Date(Date.now());
+    console.log("Connection from " + socket.request.connection._peername.address + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");
     
 
     socket.on('disconnect', function(){ //This is executed when a socket disconnects, so the server doesn't send packages to sockets that don't exist anymore.
