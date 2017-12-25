@@ -7,9 +7,6 @@ socket.on('nodeupdate', function(data){
         var currentNode = document.getElementById('node-' + data[i].uniqueID);
         timeOfUpdate = new Date(data[i].lastUpdate);
         nodestring = "<div class=\"node\" id=\"node-" + data[i].uniqueID + "\">";
-        nodestring += "<div class=\"nodeid\">"; 
-        nodestring += "node-" + data[i].uniqueID;
-        nodestring += "</div>";
         nodestring += "<div class=\"nodedata\">";
         nodestring += "Temp1: <b>" + data[i].temp1 + "C</b><br>";
         nodestring += "Temp2: <b>" + data[i].temp2 + "C</b><br>";
@@ -30,11 +27,11 @@ socket.on('nodeupdate', function(data){
         nodestring += "</div>";
 
         if(currentNode){
-            
+            console.log("current node exists, modifying existing html");
             currentNode.innerHTML = nodestring;
             
         }else{
-         
+            console.log("current node does not exit, creating new html");
             newhtml = document.createElement('div');
             newhtml.innerHTML = nodestring;
             
