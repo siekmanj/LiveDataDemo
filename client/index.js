@@ -26,7 +26,7 @@ socket.on('nodeupdate', function(data){
         nodestring += "</div>";
         
         if(currentNode){ //Update existing node
-            currentNode.innerHTML = "<div class=\"node\" id=\"node-" + data[i].uniqueID + "\">" + nodestring + "</div>";
+            currentNode.innerHTML = nodestring;
         }else{
             
             newhtml = document.createElement('div');
