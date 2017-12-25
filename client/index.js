@@ -28,7 +28,7 @@ socket.on('nodeupdate', function(data){
             nodestring += "</div>";
             nodestring += "<div class=\"nodedate\">";
             nodestring += "Time of last update:\n";
-            nodestring += (parseInt(timeOfUpdate.getMonth())+1) + "/" + timeOfUpdate.getDate() + "/" + (parseInt(timeOfUpdate.getYear())+1900) + " at " + timeOfUpdate.getHours() + ":" + timeOfUpdate.getMinutes();
+            nodestring += (parseInt(timeOfUpdate.getMonth())) + "/" + timeOfUpdate.getDate() + "/" + (parseInt(timeOfUpdate.getYear())+1900) + " at " + timeOfUpdate.getHours() + ":" + timeOfUpdate.getMinutes();
             nodestring += "</div>";
             nodestring += "</div>";
             
