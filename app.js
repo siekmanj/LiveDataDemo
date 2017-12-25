@@ -64,9 +64,8 @@ app.get('/index.js', function(req, res){
 //http://localhost/data/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17
 
 app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex/:ID/', function(req, res){
-    console.log(req.params);
     var currentTime = new Date(Date.now());
-    console.log("Received data from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes());
+    console.log("Received data from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds() + ", data collected on " + req.day + "/" + req.month + "/" + (parseInt(currentTime.getYear())+1900) + " at " + req.hr + ":" + req.min + ":" + req.sec);
     updateReady = true;
     if(contains(nodes, req.params.ID)){
         nodes[getIndexFromID(nodes, req.params.ID)].update(  req.params.SHTtemp, 
