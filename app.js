@@ -3,16 +3,16 @@ var app = express();
 var serv = require('http').Server(app);
 var port = 80;
 var io = require('socket.io')(serv, {});
-var deltaT = 1000/1;
+var deltaT = 2000;
 var updateReady = false;
 
 var nodes = new Array();
 
 var SOCKET_LIST = {};
 
+//This is a node object, used to represent the data received from a node in the field.
 var node = function(SHTtemp, SHThumid, BMPtemp, BMPpressure, batteryVoltage, DSvelocity, DSdirection, DStemp, sec, min, hr, day, month, visibleLight, irLight, uvIndex, ID){ 
     updateTime = new Date(2017, month, day, hr, min, sec);
-    //console.log(2017 + "/" + month + "/"+day+"/"+hr+"/"+min+"/"+sec);
     var self = {
         temp1: SHTtemp,
         humidity: SHThumid,
@@ -27,7 +27,7 @@ var node = function(SHTtemp, SHThumid, BMPtemp, BMPpressure, batteryVoltage, DSv
         IR: irLight,
         UV: uvIndex,
         uniqueID: ID
-    }//http://localhost/data/1111/     2/        3          /4/       5/              6/             7/         8/    9/   10/ 11/ 12/   13/     14/          15/      16/    1
+    }
     self.update = function(SHTtemp, SHThumid, BMPtemp, BMPpressure, batteryVoltage, DSvelocity, DSdirection, DStemp, sec, min, hr, day, month, visibleLight, irLight, uvIndex){
         updateTime = new Date(2017, month, day, hr, min, sec);
         self.temp1= SHTtemp;
@@ -61,7 +61,6 @@ app.get('/', function(req, res) {
 app.get('/index.js', function(req, res){
     res.sendFile(__dirname + '/client/index.js');
 });
-//http://localhost/data/1/2/3/4/5/6/7/8/9/10/11/12/13/14/15/16/17
 
 app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex/:ID/', function(req, res){
     var currentTime = new Date(Date.now());
@@ -112,9 +111,9 @@ app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSveloc
     updateReady = true;
 });
 
-app.get("*", function(req, res){
+/*app.get("*", function(req, res){
     console.log(req);
-});
+});*/
 
 io.sockets.on('connection', function(socket){
 
@@ -130,11 +129,11 @@ io.sockets.on('connection', function(socket){
     socket.on('disconnect', function(){ //This is executed when a socket disconnects, so the server doesn't send packages to sockets that don't exist anymore.
         delete SOCKET_LIST[socket.id];
         var currentTime = new Date(Date.now());
-        console.log(socket.request.connection._peername.address + " disconnected. " + numberOfObjects(SOCKET_LIST) + " users currently connected.")    
+        console.log(socket.request.connection._peername.address + " disconnected on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds() + ". " numberOfObjects(SOCKET_LIST) + " users currently connected.");    
     });
 });
     
-var contains = function(arr, ID){
+var contains = function(arr, ID){ //This was written to check the nodes array for whether or not a certain node exists already.
     for(var i in arr){
         if(arr[i].uniqueID == ID){
             return true;
@@ -143,13 +142,13 @@ var contains = function(arr, ID){
     return false;
 }
 
-var numberOfObjects = function(list){
+var numberOfObjects = function(list){ //This function counts the number of objects in a list.
     var count = 0;
     for(var i in list) count++;
     return count;
 }
 
-var getIndexFromID = function(arr, ID){
+var getIndexFromID = function(arr, ID){ //This returns the index of an element in the nodes array using a unique ID each node has.
     for(var i in arr){
         if(arr[i].uniqueID == ID){
             return i;
