@@ -6,7 +6,6 @@ socket.on('nodeupdate', function(data){
     for(var i in data){
         var currentNode = document.getElementById('node-' + data[i].uniqueID);
         timeOfUpdate = new Date(data[i].lastUpdate);
-        nodestring = "<div class=\"node\" id=\"node-" + data[i].uniqueID + "\">";
         nodestring += "<div class=\"nodeid\">"; 
         nodestring += "node-" + data[i].uniqueID;
         nodestring += "</div>";
@@ -27,9 +26,10 @@ socket.on('nodeupdate', function(data){
         nodestring += "Time of last update:\n";
         nodestring += (parseInt(timeOfUpdate.getMonth())+1) + "/" + timeOfUpdate.getDate() + "/" + (parseInt(timeOfUpdate.getYear())+1900) + " at " + timeOfUpdate.getHours() + ":" + timeOfUpdate.getMinutes() + ":" + timeOfUpdate.getSeconds();
         nodestring += "</div>";
-        nodestring += "</div>";
 
         if(currentNode){
+            nodestring = "<div class=\"node\" id=\"node-" + data[i].uniqueID + "\">" + nodestring + "</div>";
+
             currentNode.innerHTML = nodestring;
         }else{
             newhtml = document.createElement('div');
