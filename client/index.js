@@ -28,10 +28,13 @@ socket.on('nodeupdate', function(data){
 
         if(currentNode){
             console.log("current node exists, modifying existing html");
+            console.log(nodestring);
             currentNode.innerHTML = nodestring;
+            console.log("....");
+            console.log(currentNode.innerHTML);
             
         }else{
-            console.log("current node does not exit, creating new html");
+            console.log("current node does not exist, creating new html");
             newhtml = document.createElement('div');
             newhtml.innerHTML = nodestring;
             
