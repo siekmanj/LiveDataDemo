@@ -129,7 +129,7 @@ io.sockets.on('connection', function(socket){
     socket.on('disconnect', function(){ //This is executed when a socket disconnects, so the server doesn't send packages to sockets that don't exist anymore.
         delete SOCKET_LIST[socket.id];
         var currentTime = new Date(Date.now());
-        console.log(socket.request.connection._peername.address + " disconnected on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds() + ". " numberOfObjects(SOCKET_LIST) + " users currently connected.");    
+        console.log(socket.request.connection._peername.address + " disconnected on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds() + ". " + numberOfObjects(SOCKET_LIST) + " users currently connected.");    
     });
 });
     
