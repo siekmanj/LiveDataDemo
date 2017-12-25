@@ -65,7 +65,7 @@ app.get('/index.js', function(req, res){
 
 app.get('/data/:SHTtemp/:SHThumid/:BMPtemp/:BMPpressure/:batteryVoltage/:DSvelocity/:DSdirection/:DStemp/:sec/:min/:hr/:day/:month/:visibleLight/:irLight/:uvIndex/:ID/', function(req, res){
     var currentTime = new Date(Date.now());
-    console.log("Received data from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds() + ", data collected on " + req.params.day + "/" + req.params.month + "/" + (parseInt(currentTime.getYear())+1900) + " at " + req.params.hr + ":" + req.params.min + ":" + req.params.sec);
+    console.log("Received data from node-" + req.params.ID + " on " + (parseInt(currentTime.getMonth())+1) + "/" + currentTime.getDate() + "/" + (parseInt(currentTime.getYear())+1900) + " at " + currentTime.getHours() + ":" + currentTime.getMinutes() + ":" + currentTime.getSeconds() + ", data collected on " + req.params.month + "/" + req.params.day + "/" + (parseInt(currentTime.getYear())+1900) + " at " + req.params.hr + ":" + req.params.min + ":" + req.params.sec);
     updateReady = true;
     if(contains(nodes, req.params.ID)){
         nodes[getIndexFromID(nodes, req.params.ID)].update(  req.params.SHTtemp, 
