@@ -7,7 +7,7 @@ socket.on('nodeupdate', function(data){
         var currentNode = document.getElementById('node-' + data[i].uniqueID);
         timeOfUpdate = new Date(data[i].lastUpdate);
 
-        nodestring += "<div class=\"nodedata\">";
+        nodestring = "<div class=\"nodedata\">";
         nodestring += "Temp1: <b>" + data[i].temp1 + "C</b><br>";
         nodestring += "Temp2: <b>" + data[i].temp2 + "C</b><br>";
         nodestring += "Temp3: <b>" + data[i].temp3 + "C</b><br>";
